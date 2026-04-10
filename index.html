@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hermit's Arena</title>
+    <!-- fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,700;0,800;0,900;1,700;1,800;1,900&display=swap"
+        rel="stylesheet">
+    <!-- tailwind + daisyui -->
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- themes -->
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@5/themes.css" rel="stylesheet" type="text/css" />
+    <!-- font awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
+        integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style type="text/tailwindcss">
+        @theme {
+            --font-sans: 'Inter', sans-serif;
+            --font-serif: 'Playfair Display', serif;
+        }
+
+        @keyframes cta-pulse-dark {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(255,255,255,0.25); }
+            50% { box-shadow: 0 0 0 12px rgba(255,255,255,0); }
+        }
+        @keyframes cta-pulse-light {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(0,0,0,0.15); }
+            50% { box-shadow: 0 0 0 12px rgba(0,0,0,0); }
+        }
+        [data-theme="dark"] .cta-pulse {
+            animation: cta-pulse-dark 2.5s ease-in-out infinite;
+        }
+        [data-theme="light"] .cta-pulse {
+            animation: cta-pulse-light 2.5s ease-in-out infinite;
+        }
+
+        /* Minimalist link underline effect */
+        .link-hover-line {
+            position: relative;
+        }
+        .link-hover-line::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: currentColor;
+            transition: width 0.3s ease;
+        }
+        .link-hover-line:hover::after {
+            width: 100%;
+        }
+    </style>
+    <style>
+        /* True-black dark theme overrides */
+        [data-theme="dark"] {
+            --b1: 5 5% 4%;
+            /* #0a0a0a - page background */
+            --b2: 5 5% 8%;
+            /* #141414 - card backgrounds */
+            --b3: 5 5% 12%;
+            /* #1e1e1e - borders/elevated */
+            --bc: 0 0% 93%;
+            /* near-white text */
+            --p: 0 0% 93%;
+            /* primary = white-ish */
+            --pc: 0 0% 7%;
+            /* primary-content = dark */
+        }
+
+        /* Minimalist light theme */
+        [data-theme="light"] {
+            --b1: 0 0% 98%;
+            /* #fafafa - page background */
+            --b2: 0 0% 95%;
+            /* #f2f2f2 - card backgrounds */
+            --b3: 0 0% 88%;
+            /* #e0e0e0 - borders/elevated */
+            --bc: 0 0% 12%;
+            /* near-black text */
+            --p: 0 0% 12%;
+            /* primary = dark */
+            --pc: 0 0% 95%;
+            /* primary-content = light */
+        }
+
+        /* Toggle switch styling */
+        .theme-toggle {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        [data-theme="dark"] .theme-toggle {
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+
+        [data-theme="light"] .theme-toggle {
+            background-color: rgba(0, 0, 0, 0.12);
+        }
+
+        .theme-toggle .toggle-knob {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            transition: transform 0.3s ease, background-color 0.3s ease;
+        }
+
+        [data-theme="dark"] .theme-toggle .toggle-knob {
+            background-color: #ededed;
+            transform: translateX(20px);
+        }
+
+        [data-theme="light"] .theme-toggle .toggle-knob {
+            background-color: #333;
+            transform: translateX(0);
+        }
+
+        /* Smooth transitions for theme switch */
+        * {
+            transition-property: background-color, border-color, color;
+            transition-duration: 0.3s;
+            transition-timing-function: ease;
+        }
+
+        /* Card lift hover */
+        .card-hover {
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease !important;
+        }
+
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        }
+
+        /* Subtle scale on social icons */
+        .social-icon {
+            transition: transform 0.25s ease, opacity 0.25s ease, border-color 0.25s ease !important;
+        }
+
+        .social-icon:hover {
+            transform: scale(1.08);
+            opacity: 0.7;
+        }
+
+        /* On-scroll reveal animations */
+        .reveal {
+            opacity: 0;
+            transform: translateY(24px);
+            transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1), transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .reveal-delay-1 {
+            transition-delay: 0.1s;
+        }
+
+        .reveal-delay-2 {
+            transition-delay: 0.2s;
+        }
+
+        .reveal-delay-3 {
+            transition-delay: 0.3s;
+        }
+    </style>
+</head>
+
+<body class="bg-base-100 text-base-content min-h-screen font-sans">
+
+    <main class="min-h-screen">
+
+        <!-- Full layout wrapper — increased gap for breathing room -->
+        <div class="w-full min-h-screen px-4 sm:px-6 lg:px-8 py-8 lg:py-12
+                    grid grid-cols-1 lg:grid-cols-[320px_1fr] xl:grid-cols-[320px_1fr_auto]
+                    gap-10 lg:gap-16 xl:gap-20 items-start">
+
+            <!-- ========== LEFT: Hero Card (bigger) ========== -->
+            <section id="hero" class="bg-base-200 border border-base-300 rounded-3xl overflow-hidden flex flex-col
+                       lg:sticky lg:top-8 order-1 self-start">
+
+                <!-- Top area with padding -->
+                <div class="px-5 pt-5 pb-2 flex justify-between items-center gap-3">
+                    <div
+                        class="w-9 h-9 flex items-center justify-center rounded-lg border border-base-300 text-base-content/50">
+                        <i class="fa-solid fa-circle-nodes text-xs"></i>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-success"></span>
+                        <span class="text-success text-xs font-medium">Available</span>
+                    </div>
+                </div>
+
+                <!-- Profile Image — taller for bigger hero -->
+                <div class="relative aspect-[4/5] sm:aspect-[3/4] mx-4 rounded-2xl overflow-hidden">
+                    <img src="./assets/logo.jpg" alt="Profile" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent"></div>
+                    <h2 class="absolute bottom-4 left-4 text-2xl font-serif font-bold text-white drop-shadow-lg">Hermit
+                    </h2>
+                </div>
+
+                <!-- Info below image -->
+                <div class="px-5 pt-4 pb-1 space-y-1 text-center">
+                    <p class="text-base-content text-sm font-medium">hermitxxx.dev@gmail.com</p>
+                    <p class="text-base-content/50 text-xs">Based in Dhaka, Bangladesh</p>
+                </div>
+
+                <!-- Social Icons -->
+                <div class="px-5 py-4 flex items-center justify-center gap-2">
+                    <a href="https://discord.com/users/901784245255671848" target="_blank" rel="noopener noreferrer"
+                        class="social-icon w-10 h-10 flex items-center justify-center rounded-full border border-base-300 text-base-content text-sm">
+                        <i class="fa-brands fa-discord"></i>
+                    </a>
+                    <a href="https://github.com/Hermitxxx" target="_blank" rel="noopener noreferrer"
+                        class="social-icon w-10 h-10 flex items-center justify-center rounded-full border border-base-300 text-base-content text-sm">
+                        <i class="fa-brands fa-github"></i>
+                    </a>
+                    <a href="https://www.facebook.com/zzZMELCX" target="_blank" rel="noopener noreferrer"
+                        class="social-icon w-10 h-10 flex items-center justify-center rounded-full border border-base-300 text-base-content text-sm">
+                        <i class="fa-brands fa-facebook-f"></i>
+                    </a>
+                </div>
+
+                <!-- Let's Talk CTA -->
+                <div class="px-5 pb-5">
+                    <a href="#contact"
+                        class="cta-pulse flex items-center justify-between w-full bg-base-content text-base-100 rounded-2xl px-5 py-3.5 hover:opacity-90 transition-opacity duration-300 group">
+                        <span class="font-semibold text-sm tracking-wide">Get Started</span>
+                        <span
+                            class="w-9 h-9 flex items-center justify-center rounded-full bg-base-100/15 text-base-100 group-hover:bg-base-100/25 transition-colors">
+                            <i class="fa-solid fa-arrow-right -rotate-45 text-xs"></i>
+                        </span>
+                    </a>
+                </div>
+            </section>
+
+            <!-- ========== CENTER: All Content ========== -->
+            <div class="flex flex-col gap-28 lg:gap-36 order-2">
+
+                <!-- ===== Hero Banner (bigger) ===== -->
+                <section class="reveal flex flex-col pt-4 sm:pt-8 lg:pt-12">
+                    <!-- Badge -->
+                    <div class="flex items-center gap-2 mb-8 lg:mb-10">
+                        <span class="w-2.5 h-2.5 rounded-full bg-warning"></span>
+                        <span
+                            class="text-[11px] sm:text-xs xl:text-base font-semibold tracking-[0.2em] text-base-content/50 uppercase">
+                            Digital Experience Designer
+                        </span>
+                    </div>
+
+                    <!-- Heading — smaller focus/performance text -->
+                    <h1
+                        class="text-3xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl font-extrabold leading-[1.12] mb-8 lg:mb-10">
+                        <span class="text-base-content">Focus on</span><br>
+                        <span class="text-base-content/25">Performance</span><br>
+                        <span class="text-base-content">& Visuals.</span>
+                    </h1>
+
+                    <!-- Description -->
+                    <p
+                        class="text-base-content/40 text-base sm:text-lg xl:text-xl leading-relaxed max-w-xl mb-8 lg:mb-10">
+                        I am a Full-stack Developer specializing in building high-performance web applications with a
+                        focus on clean code and exceptional user experience.
+                    </p>
+
+                    <!-- Buttons -->
+                    <div class="flex flex-wrap items-center gap-4 mb-12 lg:mb-16">
+                        <a href="#projects"
+                            class="px-8 py-3.5 rounded-full bg-base-content text-base-100 text-sm font-semibold hover:opacity-85 transition-opacity duration-300 inline-flex items-center gap-2">
+                            My Portfolio
+                        </a>
+                        <a href="#contact"
+                            class="link-hover-line px-4 py-3.5 text-base-content text-sm font-semibold inline-flex items-center gap-2 transition-opacity duration-300 hover:opacity-70">
+                            Let's Talk
+                            <span
+                                class="w-7 h-7 flex items-center justify-center rounded-full border border-base-content/20 text-base-content text-[10px]">
+                                <i class="fa-solid fa-arrow-right -rotate-45"></i>
+                            </span>
+                        </a>
+                    </div>
+
+                    <!-- Stats -->
+                    <div class="grid grid-cols-3 gap-6 sm:gap-10 border-t border-base-300 pt-8 lg:pt-10">
+                        <div>
+                            <p
+                                class="text-[10px] sm:text-[11px] xl:text-xs tracking-[0.15em] text-base-content/30 uppercase font-semibold mb-2">
+                                Experience</p>
+                            <p
+                                class="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-serif font-bold italic text-base-content">
+                                +03 Years</p>
+                        </div>
+                        <div>
+                            <p
+                                class="text-[10px] sm:text-[11px] xl:text-xs tracking-[0.15em] text-base-content/30 uppercase font-semibold mb-2">
+                                Projects</p>
+                            <p
+                                class="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-serif font-bold italic text-base-content">
+                                50+ Done</p>
+                        </div>
+                        <div>
+                            <p
+                                class="text-[10px] sm:text-[11px] xl:text-xs tracking-[0.15em] text-base-content/30 uppercase font-semibold mb-2">
+                                Global Clients</p>
+                            <p
+                                class="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-serif font-bold italic text-base-content">
+                                20+ Clients</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ===== Projects Section ===== -->
+                <section id="projects" class="reveal">
+                    <div class="flex items-center gap-2 mb-6 lg:mb-8">
+                        <span class="w-2.5 h-2.5 rounded-full bg-info"></span>
+                        <span
+                            class="text-[11px] sm:text-xs xl:text-sm font-semibold tracking-[0.2em] text-base-content/50 uppercase">
+                            Recent Projects
+                        </span>
+                    </div>
+
+                    <h2
+                        class="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-extrabold mb-8 lg:mb-12 text-base-content">
+                        Featured Work
+                    </h2>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-6">
+                        <!-- Project Card 1 — Job Tracker -->
+                        <a href="https://hermitxxx.github.io/b13-A04-reazul_hassan/" target="_blank"
+                            rel="noopener noreferrer"
+                            class="card-hover bg-base-200 border border-base-300 rounded-2xl overflow-hidden hover:border-base-content/15 block">
+                            <div class="aspect-[4/3] bg-base-300 overflow-hidden">
+                                <img src="./Projects/Cover Photos/job-tracker.png" alt="Job Tracker"
+                                    class="w-full h-full object-cover">
+                            </div>
+                            <div class="p-5 lg:p-6">
+                                <h3 class="text-base lg:text-lg xl:text-xl font-bold text-base-content mb-2">Job Tracker
+                                </h3>
+                                <p class="text-base-content/40 text-sm xl:text-base leading-relaxed mb-4">
+                                    A clean dashboard to track and manage job applications effortlessly.
+                                </p>
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <span
+                                        class="px-3 py-1 text-xs rounded-full bg-base-300 text-base-content/45">HTML</span>
+                                    <span
+                                        class="px-3 py-1 text-xs rounded-full bg-base-300 text-base-content/45">CSS</span>
+                                    <span
+                                        class="px-3 py-1 text-xs rounded-full bg-base-300 text-base-content/45">JavaScript</span>
+                                </div>
+                            </div>
+                        </a>
+
+                        <!-- Project Card 2 — Samurai Portfolio -->
+                        <a href="https://hermitxxx.github.io/portfolio-hermit/" target="_blank"
+                            rel="noopener noreferrer"
+                            class="card-hover bg-base-200 border border-base-300 rounded-2xl overflow-hidden hover:border-base-content/15 block">
+                            <div class="aspect-[4/3] bg-base-300 overflow-hidden">
+                                <img src="./Projects/Cover Photos/portfolio-hermit.png" alt="Samurai Portfolio"
+                                    class="w-full h-full object-cover">
+                            </div>
+                            <div class="p-5 lg:p-6">
+                                <h3 class="text-base lg:text-lg xl:text-xl font-bold text-base-content mb-2">Samurai
+                                    Portfolio</h3>
+                                <p class="text-base-content/40 text-sm xl:text-base leading-relaxed mb-4">
+                                    A dark-themed personal portfolio with immersive samurai aesthetics.
+                                </p>
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <span
+                                        class="px-3 py-1 text-xs rounded-full bg-base-300 text-base-content/45">Next.js</span>
+                                    <span
+                                        class="px-3 py-1 text-xs rounded-full bg-base-300 text-base-content/45">TypeScript</span>
+                                    <span
+                                        class="px-3 py-1 text-xs rounded-full bg-base-300 text-base-content/45">Tailwind</span>
+                                </div>
+                            </div>
+                        </a>
+
+                        <!-- Project Card 3 — TechWave -->
+                        <a href="https://a06-digitools-reazul-hassan.netlify.app/" target="_blank"
+                            rel="noopener noreferrer"
+                            class="card-hover bg-base-200 border border-base-300 rounded-2xl overflow-hidden hover:border-base-content/15 block">
+                            <div class="aspect-[4/3] bg-base-300 overflow-hidden">
+                                <img src="./Projects/Cover Photos/DigiTools.png" alt="TechWave"
+                                    class="w-full h-full object-cover">
+                            </div>
+                            <div class="p-5 lg:p-6">
+                                <h3 class="text-base lg:text-lg xl:text-xl font-bold text-base-content mb-2">DigiTools
+                                </h3>
+                                <p class="text-base-content/40 text-sm xl:text-base leading-relaxed mb-4">
+                                    DigiTools is a bold, conversion-focused tech blog landing page built for speed,
+                                    clarity, and a seamless user experience. </p>
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <span
+                                        class="px-3 py-1 text-xs rounded-full bg-base-300 text-base-content/45">HTML</span>
+                                    <span
+                                        class="px-3 py-1 text-xs rounded-full bg-base-300 text-base-content/45">CSS</span>
+                                    <span
+                                        class="px-3 py-1 text-xs rounded-full bg-base-300 text-base-content/45">JavaScript</span>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </section>
+
+                <!-- ===== Skills Section ===== -->
+                <section id="skills" class="reveal">
+                    <div class="flex items-center gap-2 mb-6 lg:mb-8">
+                        <span class="w-2.5 h-2.5 rounded-full bg-secondary"></span>
+                        <span
+                            class="text-[11px] sm:text-xs xl:text-sm font-semibold tracking-[0.2em] text-base-content/50 uppercase">
+                            Skills & Tools
+                        </span>
+                    </div>
+
+                    <h2
+                        class="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-extrabold mb-8 lg:mb-12 text-base-content">
+                        Technologies I Use
+                    </h2>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-6">
+                        <!-- Frontend Card -->
+                        <div
+                            class="card-hover bg-base-200 border border-base-300 rounded-2xl p-6 hover:border-base-content/15">
+                            <div class="flex items-center gap-3 mb-5">
+                                <div
+                                    class="w-10 h-10 flex items-center justify-center rounded-xl bg-base-300 text-base-content/60">
+                                    <i class="fa-solid fa-laptop-code text-sm"></i>
+                                </div>
+                                <h3 class="text-sm font-bold text-base-content uppercase tracking-wider">Frontend</h3>
+                            </div>
+                            <div class="flex flex-wrap gap-2">
+                                <span
+                                    class="px-3.5 py-1.5 text-xs font-medium rounded-lg bg-base-300/60 text-base-content/60 hover:text-base-content hover:bg-base-300 transition-all duration-200">React</span>
+                                <span
+                                    class="px-3.5 py-1.5 text-xs font-medium rounded-lg bg-base-300/60 text-base-content/60 hover:text-base-content hover:bg-base-300 transition-all duration-200">Next.js</span>
+                                <span
+                                    class="px-3.5 py-1.5 text-xs font-medium rounded-lg bg-base-300/60 text-base-content/60 hover:text-base-content hover:bg-base-300 transition-all duration-200">TypeScript</span>
+                                <span
+                                    class="px-3.5 py-1.5 text-xs font-medium rounded-lg bg-base-300/60 text-base-content/60 hover:text-base-content hover:bg-base-300 transition-all duration-200">Tailwind
+                                    CSS</span>
+                                <span
+                                    class="px-3.5 py-1.5 text-xs font-medium rounded-lg bg-base-300/60 text-base-content/60 hover:text-base-content hover:bg-base-300 transition-all duration-200">JavaScript</span>
+                                <span
+                                    class="px-3.5 py-1.5 text-xs font-medium rounded-lg bg-base-300/60 text-base-content/60 hover:text-base-content hover:bg-base-300 transition-all duration-200">HTML
+                                    / CSS</span>
+                            </div>
+                        </div>
+
+                        <!-- Backend Card -->
+                        <div
+                            class="card-hover bg-base-200 border border-base-300 rounded-2xl p-6 hover:border-base-content/15">
+                            <div class="flex items-center gap-3 mb-5">
+                                <div
+                                    class="w-10 h-10 flex items-center justify-center rounded-xl bg-base-300 text-base-content/60">
+                                    <i class="fa-solid fa-server text-sm"></i>
+                                </div>
+                                <h3 class="text-sm font-bold text-base-content uppercase tracking-wider">Backend</h3>
+                            </div>
+                            <div class="flex flex-wrap gap-2">
+                                <span
+                                    class="px-3.5 py-1.5 text-xs font-medium rounded-lg bg-base-300/60 text-base-content/60 hover:text-base-content hover:bg-base-300 transition-all duration-200">Node.js</span>
+                                <span
+                                    class="px-3.5 py-1.5 text-xs font-medium rounded-lg bg-base-300/60 text-base-content/60 hover:text-base-content hover:bg-base-300 transition-all duration-200">Python</span>
+                                <span
+                                    class="px-3.5 py-1.5 text-xs font-medium rounded-lg bg-base-300/60 text-base-content/60 hover:text-base-content hover:bg-base-300 transition-all duration-200">Django</span>
+                                <span
+                                    class="px-3.5 py-1.5 text-xs font-medium rounded-lg bg-base-300/60 text-base-content/60 hover:text-base-content hover:bg-base-300 transition-all duration-200">Express</span>
+                                <span
+                                    class="px-3.5 py-1.5 text-xs font-medium rounded-lg bg-base-300/60 text-base-content/60 hover:text-base-content hover:bg-base-300 transition-all duration-200">REST
+                                    APIs</span>
+                            </div>
+                        </div>
+
+                        <!-- Tools & Databases Card -->
+                        <div
+                            class="card-hover bg-base-200 border border-base-300 rounded-2xl p-6 hover:border-base-content/15">
+                            <div class="flex items-center gap-3 mb-5">
+                                <div
+                                    class="w-10 h-10 flex items-center justify-center rounded-xl bg-base-300 text-base-content/60">
+                                    <i class="fa-solid fa-toolbox text-sm"></i>
+                                </div>
+                                <h3 class="text-sm font-bold text-base-content uppercase tracking-wider">Tools & DB</h3>
+                            </div>
+                            <div class="flex flex-wrap gap-2">
+                                <span
+                                    class="px-3.5 py-1.5 text-xs font-medium rounded-lg bg-base-300/60 text-base-content/60 hover:text-base-content hover:bg-base-300 transition-all duration-200">Git</span>
+                                <span
+                                    class="px-3.5 py-1.5 text-xs font-medium rounded-lg bg-base-300/60 text-base-content/60 hover:text-base-content hover:bg-base-300 transition-all duration-200">MongoDB</span>
+                                <span
+                                    class="px-3.5 py-1.5 text-xs font-medium rounded-lg bg-base-300/60 text-base-content/60 hover:text-base-content hover:bg-base-300 transition-all duration-200">PostgreSQL</span>
+                                <span
+                                    class="px-3.5 py-1.5 text-xs font-medium rounded-lg bg-base-300/60 text-base-content/60 hover:text-base-content hover:bg-base-300 transition-all duration-200">Docker</span>
+                                <span
+                                    class="px-3.5 py-1.5 text-xs font-medium rounded-lg bg-base-300/60 text-base-content/60 hover:text-base-content hover:bg-base-300 transition-all duration-200">Figma</span>
+                                <span
+                                    class="px-3.5 py-1.5 text-xs font-medium rounded-lg bg-base-300/60 text-base-content/60 hover:text-base-content hover:bg-base-300 transition-all duration-200">VS
+                                    Code</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ===== Contact / Message Section ===== -->
+                <section id="contact" class="reveal pb-10 lg:pb-16">
+                    <div class="flex items-center gap-2 mb-6 lg:mb-8">
+                        <span class="w-2.5 h-2.5 rounded-full bg-success"></span>
+                        <span
+                            class="text-[11px] sm:text-xs xl:text-sm font-semibold tracking-[0.2em] text-base-content/50 uppercase">
+                            Get in Touch
+                        </span>
+                    </div>
+
+                    <h2 class="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-extrabold mb-3 text-base-content">
+                        Let's Work Together
+                    </h2>
+                    <p class="text-base-content/40 text-sm sm:text-base lg:text-lg max-w-xl mb-8 lg:mb-12">
+                        Have a project in mind? Drop me a message and I'll get back to you as soon as possible.
+                    </p>
+
+                    <form class="space-y-6 max-w-3xl">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <div>
+                                <label
+                                    class="block text-xs uppercase tracking-wider text-base-content/30 font-semibold mb-2">Name</label>
+                                <input type="text" placeholder="Your name"
+                                    class="w-full bg-base-200 border border-base-300 rounded-xl px-5 py-4 text-base-content text-base placeholder:text-base-content/20 focus:outline-none focus:border-base-content/25 transition" />
+                            </div>
+                            <div>
+                                <label
+                                    class="block text-xs uppercase tracking-wider text-base-content/30 font-semibold mb-2">Email</label>
+                                <input type="email" placeholder="Your email"
+                                    class="w-full bg-base-200 border border-base-300 rounded-xl px-5 py-4 text-base-content text-base placeholder:text-base-content/20 focus:outline-none focus:border-base-content/25 transition" />
+                            </div>
+                        </div>
+                        <div>
+                            <label
+                                class="block text-xs uppercase tracking-wider text-base-content/30 font-semibold mb-2">Subject</label>
+                            <input type="text" placeholder="What's this about?"
+                                class="w-full bg-base-200 border border-base-300 rounded-xl px-5 py-4 text-base-content text-base placeholder:text-base-content/20 focus:outline-none focus:border-base-content/25 transition" />
+                        </div>
+                        <div>
+                            <label
+                                class="block text-xs uppercase tracking-wider text-base-content/30 font-semibold mb-2">Message</label>
+                            <textarea rows="6" placeholder="Tell me about your project..."
+                                class="w-full bg-base-200 border border-base-300 rounded-xl px-5 py-4 text-base-content text-base placeholder:text-base-content/20 focus:outline-none focus:border-base-content/25 transition resize-none"></textarea>
+                        </div>
+                        <button type="submit"
+                            class="px-8 py-4 rounded-full bg-base-content text-base-100 text-base font-semibold hover:opacity-85 transition-opacity duration-300 cursor-pointer">
+                            Send Message
+                            <i class="fa-solid fa-paper-plane ml-2 text-sm"></i>
+                        </button>
+                    </form>
+                </section>
+            </div>
+
+            <!-- ========== RIGHT: Navbar with Theme Toggle ========== -->
+            <nav class="fixed bottom-4 left-1/2 -translate-x-1/2 z-50
+                        bg-base-content/6 backdrop-blur-md rounded-full py-2 px-3 flex flex-row items-center gap-2 shadow-xl border border-base-300
+                        xl:static xl:translate-x-0 xl:sticky xl:top-[50%] xl:-translate-y-1/2
+                        xl:flex-col xl:py-6 xl:px-2.5 xl:gap-4 xl:rounded-full xl:self-start xl:justify-self-end
+                        order-3">
+
+                <!-- Theme Toggle -->
+                <div class="theme-toggle" id="themeToggle" title="Toggle light/dark mode" role="button" tabindex="0"
+                    aria-label="Toggle theme">
+                    <div class="toggle-knob"></div>
+                </div>
+
+                <div class="w-px h-5 bg-base-content/10 xl:w-5 xl:h-px"></div>
+
+                <a href="#hero"
+                    class="nav-link w-11 h-11 flex items-center justify-center rounded-full bg-base-content/12 text-base-content text-base hover:bg-base-content/20 transition-all duration-200"
+                    data-section="hero" title="Home">
+                    <i class="fa-solid fa-house"></i>
+                </a>
+                <a href="#projects"
+                    class="nav-link w-11 h-11 flex items-center justify-center rounded-full text-base-content/35 text-base hover:text-base-content hover:bg-base-content/10 transition-all duration-200"
+                    data-section="projects" title="Projects">
+                    <i class="fa-solid fa-gem"></i>
+                </a>
+                <a href="#skills"
+                    class="nav-link w-11 h-11 flex items-center justify-center rounded-full text-base-content/35 text-base hover:text-base-content hover:bg-base-content/10 transition-all duration-200"
+                    data-section="skills" title="Skills">
+                    <i class="fa-solid fa-code"></i>
+                </a>
+                <a href="#contact"
+                    class="nav-link w-11 h-11 flex items-center justify-center rounded-full text-base-content/35 text-base hover:text-base-content hover:bg-base-content/10 transition-all duration-200"
+                    data-section="contact" title="Contact">
+                    <i class="fa-solid fa-envelope"></i>
+                </a>
+            </nav>
+
+        </div>
+    </main>
+
+    <script src="./scripts/script.js"></script>
+</body>
+
+</html>
